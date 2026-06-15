@@ -2,7 +2,7 @@
 
 ## Category
 
-Implicit second-order method.
+Implicit second-order one-step method.
 
 ## Implemented MATLAB file
 
@@ -10,27 +10,72 @@ Implicit second-order method.
 src/methods/trapezoidal_rule.m
 ```
 
-## Core idea
+## Full mathematical explanation
 
-Second-order, A-stable, less dissipative than backward Euler.
+### Problem setting and notation
 
-The method advances an initial-value problem
+For an initial-value problem,
+
+$$
+y'(t)=f(t,y(t)), \qquad y(t_0)=y_0,
+$$
+
+choose grid points
+
+$$
+t_n=t_0+nh, \qquad h=t_{n+1}-t_n,
+$$
+
+and denote the numerical approximation to $y(t_n)$ by $y_n$. For a system of $m$ equations, $y_n\in\mathbb{R}^m$ and $f(t,y)\in\mathbb{R}^m$. The same formulas apply componentwise unless the method is written in special second-order mechanical variables such as position $q$, velocity $v$, and momentum $p$.
+
+### Formula
+
+$$
+y_{n+1}=y_n+\frac{h}{2}\left[f(t_n,y_n)+f(t_{n+1},y_{n+1})\right].
+$$
+
+### Geometric meaning
+
+The exact step is an integral of the vector field. The trapezoidal rule approximates this integral by averaging the endpoint slopes. The method is implicit because the endpoint slope is unknown before solving for $y_{n+1}$.
+
+### Accuracy
+
+$$
+\text{local error}=O(h^3), \qquad \text{global error}=O(h^2).
+$$
+
+### Stability
+
+For $y'=\lambda y$,
+
+$$
+R(z)=\frac{1+z/2}{1-z/2}.
+$$
+
+The method is A-stable but not L-stable. It is less dissipative than Backward Euler, which can be good for oscillations but less effective for killing very stiff transients.
+
+### Time symmetry
+
+For autonomous systems, the method is symmetric: a forward step of size $h$ followed by a step of size $-h$ returns to the starting value up to solver tolerance.
+
+### Pseudocode
 
 ```text
-y' = f(t, y),    y(t0) = y0
+for each step:
+    form the endpoint-slope averaged residual
+    solve for the future state
+    accept the future state
 ```
-
-from `t_n` to `t_(n+1)=t_n+h` using the method-specific update formula implemented in the MATLAB file above.
 
 ## Historical background
 
-The trapezoidal quadrature rule is classical; in time integration it is also known as Crank-Nicolson in PDE contexts.
+The trapezoidal rule originates from classical numerical quadrature and becomes an implicit ODE method when applied to the integral form of an initial-value problem.
 
 The documentation in this repository is intended as a practical engineering summary. For formal historical work, consult the primary references listed in [`../references.md`](../references.md).
 
 ## Strengths
 
-- Gives a clear benchmark representative of the Implicit second-order method family.
+- Gives a clear benchmark representative of the Implicit second-order one-step method family.
 - Useful for comparing error, runtime, stability, and invariant behavior.
 - Easy to inspect because the implementation is intentionally written in readable MATLAB.
 
@@ -43,7 +88,7 @@ The documentation in this repository is intended as a practical engineering summ
 
 ## Works best for
 
-diffusion-like systems, circuits, moderate stiffness
+smooth mildly stiff problems where second-order accuracy and low numerical damping are desired
 
 ## Main performance metrics for this method
 

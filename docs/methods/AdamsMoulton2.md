@@ -10,17 +10,62 @@ Implicit Adams method / trapezoidal rule.
 src/methods/adams_moulton2.m
 ```
 
-## Core idea
+## Full mathematical explanation
 
-Second-order implicit formula equivalent to the trapezoidal rule.
+### Problem setting and notation
 
-The method advances an initial-value problem
+For an initial-value problem,
+
+$$
+y'(t)=f(t,y(t)), \qquad y(t_0)=y_0,
+$$
+
+choose grid points
+
+$$
+t_n=t_0+nh, \qquad h=t_{n+1}-t_n,
+$$
+
+and denote the numerical approximation to $y(t_n)$ by $y_n$. For a system of $m$ equations, $y_n\in\mathbb{R}^m$ and $f(t,y)\in\mathbb{R}^m$. The same formulas apply componentwise unless the method is written in special second-order mechanical variables such as position $q$, velocity $v$, and momentum $p$.
+
+### Formula
+
+Adams-Moulton 2 is equivalent to the implicit trapezoidal rule:
+
+$$
+y_{n+1}=y_n+\frac{h}{2}\left[f(t_n,y_n)+f(t_{n+1},y_{n+1})\right].
+$$
+
+### Geometric meaning
+
+The method approximates the integral of the vector field by the average of the beginning and ending slopes. Because the ending slope depends on the unknown ending state, the method is implicit.
+
+### Accuracy
+
+The trapezoidal quadrature approximation gives
+
+$$
+\text{local error}=O(h^3), \qquad \text{global error}=O(h^2).
+$$
+
+### Stability
+
+For $y'=\lambda y$,
+
+$$
+R(z)=\frac{1+z/2}{1-z/2}.
+$$
+
+The method is A-stable, but not L-stable because $R(z)\to -1$ as $z\to -\infty$. Very stiff modes may oscillate instead of being strongly damped.
+
+### Pseudocode
 
 ```text
-y' = f(t, y),    y(t0) = y0
+for each step:
+    define G(Y)=Y-y_n-(h/2)*(f(t_n,y_n)+f(t_{n+1},Y))
+    solve G(Y)=0
+    accept Y as the next value
 ```
-
-from `t_n` to `t_(n+1)=t_n+h` using the method-specific update formula implemented in the MATLAB file above.
 
 ## Historical background
 

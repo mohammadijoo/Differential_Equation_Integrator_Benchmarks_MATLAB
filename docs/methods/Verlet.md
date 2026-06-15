@@ -1,36 +1,93 @@
-# Störmer-Verlet
+# Verlet
 
 ## Category
 
-Second-order symplectic method.
+Second-order position-based symplectic method.
 
 ## Implemented MATLAB file
 
 ```text
-src/methods/stormer_verlet.m
+src/methods/verlet.m
 ```
 
-## Core idea
+## Full mathematical explanation
 
-Second-order, time-reversible, symplectic.
+### Problem setting and notation
 
-The method advances an initial-value problem
+For an initial-value problem,
+
+$$
+y'(t)=f(t,y(t)), \qquad y(t_0)=y_0,
+$$
+
+choose grid points
+
+$$
+t_n=t_0+nh, \qquad h=t_{n+1}-t_n,
+$$
+
+and denote the numerical approximation to $y(t_n)$ by $y_n$. For a system of $m$ equations, $y_n\in\mathbb{R}^m$ and $f(t,y)\in\mathbb{R}^m$. The same formulas apply componentwise unless the method is written in special second-order mechanical variables such as position $q$, velocity $v$, and momentum $p$.
+
+### Formula
+
+For
+
+$$
+\ddot q=a(q),
+$$
+
+Verlet uses
+
+$$
+q_{n+1}=2q_n-q_{n-1}+h^2a(q_n).
+$$
+
+Velocity can be estimated by
+
+$$
+v_n\approx \frac{q_{n+1}-q_{n-1}}{2h}.
+$$
+
+### Geometric meaning
+
+The method continues the previous displacement and bends it by the current acceleration. It is a centered second-difference approximation to Newton's equation.
+
+### Taylor derivation
+
+Adding the Taylor expansions of $q(t_n+h)$ and $q(t_n-h)$ gives
+
+$$
+q(t_n+h)=2q(t_n)-q(t_n-h)+h^2\ddot q(t_n)+O(h^4).
+$$
+
+Substituting $a(q_n)$ gives the Verlet recurrence.
+
+### Accuracy and structure
+
+Verlet is globally second-order and symplectic for separable Hamiltonian mechanical systems.
+
+### Startup
+
+Because the formula uses $q_{n-1}$, an initial second point must be constructed from $q_0$, $v_0$, and $a(q_0)$.
+
+### Pseudocode
 
 ```text
-y' = f(t, y),    y(t0) = y0
+initialize q0 and q1
+for each step:
+    compute acceleration at q_n
+    compute q_{n+1}=2*q_n-q_{n-1}+h^2*a(q_n)
 ```
-
-from `t_n` to `t_(n+1)=t_n+h` using the method-specific update formula implemented in the MATLAB file above.
 
 ## Historical background
 
-Störmer used related central-difference ideas in celestial mechanics; Verlet popularized the algorithm in molecular dynamics in 1967.
+Verlet integration is widely associated with molecular dynamics and classical mechanics, where position-only second-order equations are common.
 
 The documentation in this repository is intended as a practical engineering summary. For formal historical work, consult the primary references listed in [`../references.md`](../references.md).
 
 ## Strengths
 
-- Gives a clear benchmark representative of the Second-order symplectic method family.
+- Gives a clear benchmark representative of the Second-order position-based symplectic method family.
 - Useful for comparing error, runtime, stability, and invariant behavior.
 - Easy to inspect because the implementation is intentionally written in readable MATLAB.
 
@@ -43,7 +100,7 @@ The documentation in this repository is intended as a practical engineering summ
 
 ## Works best for
 
-molecular dynamics, orbital mechanics, conservative mechanics
+second-order mechanical systems where acceleration depends mainly on position
 
 ## Main performance metrics for this method
 

@@ -7,24 +7,71 @@ Second-order symplectic method.
 ## Implemented MATLAB file
 
 ```text
-src/methods/leapfrog_method.m
+src/methods/leapfrog.m
 ```
 
-## Core idea
+## Full mathematical explanation
 
-Second-order, time-reversible, bounded energy error for many Hamiltonian systems.
+### Problem setting and notation
 
-The method advances an initial-value problem
+For an initial-value problem,
+
+$$
+y'(t)=f(t,y(t)), \qquad y(t_0)=y_0,
+$$
+
+choose grid points
+
+$$
+t_n=t_0+nh, \qquad h=t_{n+1}-t_n,
+$$
+
+and denote the numerical approximation to $y(t_n)$ by $y_n$. For a system of $m$ equations, $y_n\in\mathbb{R}^m$ and $f(t,y)\in\mathbb{R}^m$. The same formulas apply componentwise unless the method is written in special second-order mechanical variables such as position $q$, velocity $v$, and momentum $p$.
+
+### Kick-drift-kick form
+
+For $\dot q=M^{-1}p$ and $\dot p=F(q)$,
+
+$$
+p_{n+1/2}=p_n+\frac{h}{2}F(q_n),
+$$
+
+$$
+q_{n+1}=q_n+hM^{-1}p_{n+1/2},
+$$
+
+$$
+p_{n+1}=p_{n+1/2}+\frac{h}{2}F(q_{n+1}).
+$$
+
+### Geometric meaning
+
+Momentum and position leap over each other on staggered half time levels. The symmetric half-kicks around the full drift make the method time-reversible and symplectic.
+
+### Accuracy
+
+Leapfrog has
+
+$$
+\text{local error}=O(h^3), \qquad \text{global error}=O(h^2).
+$$
+
+### Energy behavior
+
+For Hamiltonian systems, leapfrog normally gives bounded oscillatory energy error rather than monotonic energy drift. This is essential for long-time orbital simulations.
+
+### Pseudocode
 
 ```text
-y' = f(t, y),    y(t0) = y0
+for each step:
+    half-step momentum kick
+    full-step position drift
+    half-step momentum kick
 ```
-
-from `t_n` to `t_(n+1)=t_n+h` using the method-specific update formula implemented in the MATLAB file above.
 
 ## Historical background
 
-Leapfrog is another form of the Störmer-Verlet family; the name comes from staggered updates.
+Leapfrog methods have long been used in celestial mechanics, molecular dynamics, and wave problems because of their time-centered, symplectic structure.
 
 The documentation in this repository is intended as a practical engineering summary. For formal historical work, consult the primary references listed in [`../references.md`](../references.md).
 
@@ -43,7 +90,7 @@ The documentation in this repository is intended as a practical engineering summ
 
 ## Works best for
 
-waves, orbits, conservative mechanical systems
+separable Hamiltonian systems, orbital dynamics, oscillators, and long-time conservative simulations
 
 ## Main performance metrics for this method
 

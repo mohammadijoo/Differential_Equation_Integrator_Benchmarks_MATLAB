@@ -10,17 +10,70 @@ Adams-Bashforth-Moulton PECE method.
 src/methods/abm4_predictor_corrector.m
 ```
 
-## Core idea
+## Full mathematical explanation
 
-Fourth-order PECE method in common practical usage.
+### Problem setting and notation
 
-The method advances an initial-value problem
+For an initial-value problem,
+
+$$
+y'(t)=f(t,y(t)), \qquad y(t_0)=y_0,
+$$
+
+choose grid points
+
+$$
+t_n=t_0+nh, \qquad h=t_{n+1}-t_n,
+$$
+
+and denote the numerical approximation to $y(t_n)$ by $y_n$. For a system of $m$ equations, $y_n\in\mathbb{R}^m$ and $f(t,y)\in\mathbb{R}^m$. The same formulas apply componentwise unless the method is written in special second-order mechanical variables such as position $q$, velocity $v$, and momentum $p$.
+
+### PECE structure
+
+ABM4 is often written as Predict-Evaluate-Correct-Evaluate. The predictor is Adams-Bashforth 4:
+
+$$
+y_{n+1}^{P}=y_n+\frac{h}{24}(55f_n-59f_{n-1}+37f_{n-2}-9f_{n-3}).
+$$
+
+Then compute
+
+$$
+f_{n+1}^{P}=f(t_{n+1},y_{n+1}^{P}).
+$$
+
+The corrector is the Adams-Moulton 4 formula using the predicted endpoint slope:
+
+$$
+y_{n+1}=y_n+\frac{h}{24}(9f_{n+1}^{P}+19f_n-5f_{n-1}+f_{n-2}).
+$$
+
+### Geometric meaning
+
+The predictor extrapolates the future behavior from old slopes. The corrector improves that forecast by incorporating an endpoint slope estimate. This is a practical way to get much of the benefit of an implicit corrector without iterating it to convergence.
+
+### Accuracy
+
+With accurate startup values and smooth dynamics,
+
+$$
+\text{local error}=O(h^5), \qquad \text{global error}=O(h^4).
+$$
+
+### Startup and stability
+
+The method requires multiple previous values and slopes. Since it is still based on explicit prediction and a limited correction, it is efficient for smooth non-stiff problems but not a robust stiff solver.
+
+### Pseudocode
 
 ```text
-y' = f(t, y),    y(t0) = y0
+initialize several previous values and slopes
+for each step:
+    predict endpoint using Adams-Bashforth 4
+    evaluate slope at the predicted endpoint
+    correct using Adams-Moulton 4
+    store the corrected slope for later steps
 ```
-
-from `t_n` to `t_(n+1)=t_n+h` using the method-specific update formula implemented in the MATLAB file above.
 
 ## Historical background
 

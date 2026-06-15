@@ -2,7 +2,7 @@
 
 ## Category
 
-Energy-preserving method.
+Energy-preserving geometric method.
 
 ## Implemented MATLAB file
 
@@ -10,27 +10,84 @@ Energy-preserving method.
 src/methods/discrete_gradient_oscillator.m
 ```
 
-## Core idea
+## Full mathematical explanation
 
-Preserves the quadratic harmonic-oscillator energy up to roundoff.
+### Problem setting and notation
 
-The method advances an initial-value problem
+For an initial-value problem,
+
+$$
+y'(t)=f(t,y(t)), \qquad y(t_0)=y_0,
+$$
+
+choose grid points
+
+$$
+t_n=t_0+nh, \qquad h=t_{n+1}-t_n,
+$$
+
+and denote the numerical approximation to $y(t_n)$ by $y_n$. For a system of $m$ equations, $y_n\in\mathbb{R}^m$ and $f(t,y)\in\mathbb{R}^m$. The same formulas apply componentwise unless the method is written in special second-order mechanical variables such as position $q$, velocity $v$, and momentum $p$.
+
+### Energy system form
+
+For
+
+$$
+\dot y=S\nabla H(y), \qquad S^T=-S,
+$$
+
+the exact energy satisfies
+
+$$
+\frac{dH}{dt}=\nabla H(y)^TS\nabla H(y)=0.
+$$
+
+### Discrete gradient property
+
+A discrete gradient satisfies
+
+$$
+H(y_{n+1})-H(y_n)=\bar\nabla H(y_n,y_{n+1})^T(y_{n+1}-y_n).
+$$
+
+### Method
+
+$$
+\frac{y_{n+1}-y_n}{h}=S\bar\nabla H(y_n,y_{n+1}).
+$$
+
+### Exact energy preservation
+
+Using the update,
+
+$$
+H(y_{n+1})-H(y_n)=h\bar\nabla H^TS\bar\nabla H=0,
+$$
+
+because $S$ is skew-symmetric. Energy is therefore preserved up to solver tolerance and roundoff.
+
+### Geometric meaning
+
+The method constrains the numerical step to remain on the same discrete energy level. This may be more important than local pointwise accuracy for long-time oscillatory simulations.
+
+### Pseudocode
 
 ```text
-y' = f(t, y),    y(t0) = y0
+for each step:
+    construct a discrete gradient between old and new states
+    solve the implicit discrete-gradient equation
+    verify the energy balance
 ```
-
-from `t_n` to `t_(n+1)=t_n+h` using the method-specific update formula implemented in the MATLAB file above.
 
 ## Historical background
 
-Discrete-gradient methods are geometric integrators designed to preserve first integrals exactly.
+Discrete gradient methods belong to energy-preserving geometric integration and are designed to reproduce conservation laws at the discrete level.
 
 The documentation in this repository is intended as a practical engineering summary. For formal historical work, consult the primary references listed in [`../references.md`](../references.md).
 
 ## Strengths
 
-- Gives a clear benchmark representative of the Energy-preserving method family.
+- Gives a clear benchmark representative of the Energy-preserving geometric method family.
 - Useful for comparing error, runtime, stability, and invariant behavior.
 - Easy to inspect because the implementation is intentionally written in readable MATLAB.
 
@@ -43,7 +100,7 @@ The documentation in this repository is intended as a practical engineering summ
 
 ## Works best for
 
-conservative systems where exact energy preservation is prioritized
+oscillatory or Hamiltonian problems where exact preservation of a discrete energy is the main objective
 
 ## Main performance metrics for this method
 

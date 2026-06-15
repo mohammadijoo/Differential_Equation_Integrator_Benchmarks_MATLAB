@@ -10,21 +10,98 @@ Implicit one-step method.
 src/methods/backward_euler.m
 ```
 
-## Core idea
+## Full mathematical explanation
 
-First-order, A-stable for the scalar test equation, strongly dissipative.
+### Problem setting and notation
 
-The method advances an initial-value problem
+For an initial-value problem,
+
+$$
+y'(t)=f(t,y(t)), \qquad y(t_0)=y_0,
+$$
+
+choose grid points
+
+$$
+t_n=t_0+nh, \qquad h=t_{n+1}-t_n,
+$$
+
+and denote the numerical approximation to $y(t_n)$ by $y_n$. For a system of $m$ equations, $y_n\in\mathbb{R}^m$ and $f(t,y)\in\mathbb{R}^m$. The same formulas apply componentwise unless the method is written in special second-order mechanical variables such as position $q$, velocity $v$, and momentum $p$.
+
+### Update formula
+
+Backward Euler evaluates the slope at the future point:
+
+$$
+y_{n+1}=y_n+h f(t_{n+1},y_{n+1}).
+$$
+
+Because $y_{n+1}$ appears inside $f$, the step is implicit. The unknown future state satisfies
+
+$$
+G(Y)=Y-y_n-hf(t_{n+1},Y)=0.
+$$
+
+### Geometric meaning
+
+Instead of moving forward along the current tangent, Backward Euler asks for a future point whose tangent slope points back to the current value over one time step. This future-slope construction naturally damps rapidly decaying modes.
+
+### Accuracy
+
+Using the backward Taylor expansion,
+
+$$
+y(t_n)=y(t_{n+1})-h y'(t_{n+1})+O(h^2),
+$$
+
+and rearranging yields the method. Thus
+
+$$
+\text{local truncation error}=O(h^2), \qquad \text{global error}=O(h).
+$$
+
+### Linear and nonlinear solves
+
+For $y'=Ay+g(t)$,
+
+$$
+(I-hA)y_{n+1}=y_n+h g(t_{n+1}).
+$$
+
+For nonlinear $f$, Newton iteration uses Jacobian matrices of the form
+
+$$
+I-h\frac{\partial f}{\partial y}(t_{n+1},Y^{(k)}).
+$$
+
+### Stability
+
+For $y'=\lambda y$,
+
+$$
+R(z)=\frac{1}{1-z}, \qquad z=h\lambda.
+$$
+
+The method is A-stable because $|R(z)|<1$ for $\operatorname{Re}(z)<0$. It is also strongly damping since
+
+$$
+\lim_{z\to -\infty}R(z)=0.
+$$
+
+This makes it robust for stiff dissipative equations, but it can overdamp oscillatory dynamics.
+
+### Pseudocode
 
 ```text
-y' = f(t, y),    y(t0) = y0
+for each step:
+    define residual G(Y)=Y-y_n-h*f(t_{n+1},Y)
+    solve G(Y)=0
+    accept the solution Y as y_{n+1}
 ```
-
-from `t_n` to `t_(n+1)=t_n+h` using the method-specific update formula implemented in the MATLAB file above.
 
 ## Historical background
 
-Backward Euler is the implicit counterpart of Euler's method and became central in stiff integration theory.
+Backward Euler is the implicit counterpart of Euler's method and is a classical member of the one-step finite-difference family used extensively for stiff differential equations.
 
 The documentation in this repository is intended as a practical engineering summary. For formal historical work, consult the primary references listed in [`../references.md`](../references.md).
 
@@ -43,7 +120,7 @@ The documentation in this repository is intended as a practical engineering summ
 
 ## Works best for
 
-stiff decay, Robertson-like stiff systems, damped systems
+stiff dissipative systems, decay-dominated dynamics, and problems where numerical damping is acceptable
 
 ## Main performance metrics for this method
 

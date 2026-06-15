@@ -10,21 +10,73 @@ First-order symplectic method.
 src/methods/symplectic_euler.m
 ```
 
-## Core idea
+## Full mathematical explanation
 
-First-order but preserves symplectic structure.
+### Problem setting and notation
 
-The method advances an initial-value problem
+For an initial-value problem,
+
+$$
+y'(t)=f(t,y(t)), \qquad y(t_0)=y_0,
+$$
+
+choose grid points
+
+$$
+t_n=t_0+nh, \qquad h=t_{n+1}-t_n,
+$$
+
+and denote the numerical approximation to $y(t_n)$ by $y_n$. For a system of $m$ equations, $y_n\in\mathbb{R}^m$ and $f(t,y)\in\mathbb{R}^m$. The same formulas apply componentwise unless the method is written in special second-order mechanical variables such as position $q$, velocity $v$, and momentum $p$.
+
+### Hamiltonian form
+
+For a separable Hamiltonian
+
+$$
+H(q,p)=T(p)+V(q),
+$$
+
+the equations are
+
+$$
+\dot q=\nabla_pT(p), \qquad \dot p=-\nabla_qV(q).
+$$
+
+### Kick-drift variant
+
+$$
+p_{n+1}=p_n-h\nabla_qV(q_n),
+$$
+
+$$
+q_{n+1}=q_n+h\nabla_pT(p_{n+1}).
+$$
+
+### Geometric meaning
+
+The updated momentum is used immediately in the position update. This small change from Forward Euler makes the map symplectic, so it preserves phase-space area in canonical coordinates.
+
+### Accuracy and energy
+
+Symplectic Euler is first-order:
+
+$$
+\text{global error}=O(h).
+$$
+
+However, it often preserves a nearby modified Hamiltonian, giving bounded energy oscillations instead of monotone drift.
+
+### Pseudocode
 
 ```text
-y' = f(t, y),    y(t0) = y0
+for each step:
+    update momentum using old position
+    update position using new momentum
 ```
-
-from `t_n` to `t_(n+1)=t_n+h` using the method-specific update formula implemented in the MATLAB file above.
 
 ## Historical background
 
-Symplectic Euler is a simple geometric integrator motivated by Hamiltonian mechanics.
+Symplectic Euler is a basic geometric integrator for Hamiltonian systems and illustrates how changing the update ordering can preserve phase-space structure.
 
 The documentation in this repository is intended as a practical engineering summary. For formal historical work, consult the primary references listed in [`../references.md`](../references.md).
 
@@ -43,7 +95,7 @@ The documentation in this repository is intended as a practical engineering summ
 
 ## Works best for
 
-long-time conservative mechanics
+Hamiltonian mechanical systems where qualitative long-time behavior matters more than high local order
 
 ## Main performance metrics for this method
 

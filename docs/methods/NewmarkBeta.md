@@ -1,8 +1,8 @@
-# Newmark-beta
+# Newmark-Beta
 
 ## Category
 
-Second-order structural dynamics method.
+Second-order structural dynamics time integrator.
 
 ## Implemented MATLAB file
 
@@ -10,27 +10,86 @@ Second-order structural dynamics method.
 src/methods/newmark_beta.m
 ```
 
-## Core idea
+## Full mathematical explanation
 
-Parameter family; average acceleration β=1/4, γ=1/2 is common and unconditionally stable for linear problems.
+### Problem setting and notation
 
-The method advances an initial-value problem
+For an initial-value problem,
+
+$$
+y'(t)=f(t,y(t)), \qquad y(t_0)=y_0,
+$$
+
+choose grid points
+
+$$
+t_n=t_0+nh, \qquad h=t_{n+1}-t_n,
+$$
+
+and denote the numerical approximation to $y(t_n)$ by $y_n$. For a system of $m$ equations, $y_n\in\mathbb{R}^m$ and $f(t,y)\in\mathbb{R}^m$. The same formulas apply componentwise unless the method is written in special second-order mechanical variables such as position $q$, velocity $v$, and momentum $p$.
+
+### Second-order dynamics
+
+Newmark methods target systems such as
+
+$$
+M\ddot q+C\dot q+Kq=r(t).
+$$
+
+Let $v=\dot q$ and $a=\ddot q$.
+
+### Newmark formulas
+
+$$
+q_{n+1}=q_n+h v_n+h^2\left[\left(\frac12-\beta\right)a_n+\beta a_{n+1}\right],
+$$
+
+$$
+v_{n+1}=v_n+h\left[(1-\gamma)a_n+\gamma a_{n+1}\right].
+$$
+
+### Geometric meaning
+
+The method assumes a controlled model for acceleration variation across the step. The parameters $\beta$ and $\gamma$ determine how much future acceleration influences displacement and velocity.
+
+### Common parameters
+
+The average-acceleration choice is
+
+$$
+\gamma=\frac12, \qquad \beta=\frac14.
+$$
+
+For linear structural dynamics, this is second-order and unconditionally stable.
+
+### Accuracy and implicitness
+
+For $\gamma=1/2$, Newmark-beta is typically second-order:
+
+$$
+\text{global error}=O(h^2).
+$$
+
+When $a_{n+1}$ depends on $q_{n+1}$ and $v_{n+1}$, the step requires solving the equation of motion.
+
+### Pseudocode
 
 ```text
-y' = f(t, y),    y(t0) = y0
+for each step:
+    predict displacement and velocity
+    solve for new acceleration or displacement
+    correct displacement and velocity
 ```
-
-from `t_n` to `t_(n+1)=t_n+h` using the method-specific update formula implemented in the MATLAB file above.
 
 ## Historical background
 
-Nathan M. Newmark introduced the method in 1959 for structural dynamics.
+The Newmark-beta family is a standard family of time integration methods in structural dynamics for second-order equations of motion.
 
 The documentation in this repository is intended as a practical engineering summary. For formal historical work, consult the primary references listed in [`../references.md`](../references.md).
 
 ## Strengths
 
-- Gives a clear benchmark representative of the Second-order structural dynamics method family.
+- Gives a clear benchmark representative of the Second-order structural dynamics time integrator family.
 - Useful for comparing error, runtime, stability, and invariant behavior.
 - Easy to inspect because the implementation is intentionally written in readable MATLAB.
 
@@ -43,7 +102,7 @@ The documentation in this repository is intended as a practical engineering summ
 
 ## Works best for
 
-structural dynamics, vibrations, finite element dynamics
+second-order vibration and structural dynamics models with displacement, velocity, and acceleration states
 
 ## Main performance metrics for this method
 

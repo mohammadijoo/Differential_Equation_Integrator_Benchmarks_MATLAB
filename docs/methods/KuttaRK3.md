@@ -2,7 +2,7 @@
 
 ## Category
 
-Third-order explicit Runge-Kutta method.
+Explicit third-order Runge-Kutta method.
 
 ## Implemented MATLAB file
 
@@ -10,27 +10,83 @@ Third-order explicit Runge-Kutta method.
 src/methods/kutta_rk3.m
 ```
 
-## Core idea
+## Full mathematical explanation
 
-Third-order, three stages, useful middle ground between RK2 and RK4.
+### Problem setting and notation
 
-The method advances an initial-value problem
+For an initial-value problem,
+
+$$
+y'(t)=f(t,y(t)), \qquad y(t_0)=y_0,
+$$
+
+choose grid points
+
+$$
+t_n=t_0+nh, \qquad h=t_{n+1}-t_n,
+$$
+
+and denote the numerical approximation to $y(t_n)$ by $y_n$. For a system of $m$ equations, $y_n\in\mathbb{R}^m$ and $f(t,y)\in\mathbb{R}^m$. The same formulas apply componentwise unless the method is written in special second-order mechanical variables such as position $q$, velocity $v$, and momentum $p$.
+
+### Stage formulas
+
+$$
+k_1=f(t_n,y_n),
+$$
+
+$$
+k_2=f\left(t_n+\frac{h}{2},y_n+\frac{h}{2}k_1\right),
+$$
+
+$$
+k_3=f(t_n+h,y_n-hk_1+2hk_2),
+$$
+
+$$
+y_{n+1}=y_n+\frac{h}{6}(k_1+4k_2+k_3).
+$$
+
+### Geometric meaning
+
+The method samples the beginning, middle, and end of the step. The weighting resembles Simpson-type averaging, with the midpoint slope receiving the largest coefficient.
+
+### Accuracy
+
+The coefficients satisfy the third-order Runge-Kutta order conditions, so
+
+$$
+\text{local error}=O(h^4), \qquad \text{global error}=O(h^3).
+$$
+
+### Stability
+
+For $y'=\lambda y$,
+
+$$
+R(z)=1+z+\frac{z^2}{2}+\frac{z^3}{6}.
+$$
+
+This is the cubic Taylor approximation of $e^z$. It improves non-stiff accuracy but does not provide stiff stability.
+
+### Pseudocode
 
 ```text
-y' = f(t, y),    y(t0) = y0
+for each step:
+    compute beginning slope
+    compute midpoint slope
+    compute corrected endpoint slope
+    combine slopes with weights 1, 4, 1 divided by 6
 ```
-
-from `t_n` to `t_(n+1)=t_n+h` using the method-specific update formula implemented in the MATLAB file above.
 
 ## Historical background
 
-Kutta extended Runge's ideas in 1901 and introduced families of higher-order formulas.
+Kutta's third-order method is part of the classical Runge-Kutta family developed around the turn of the twentieth century to obtain higher accuracy from staged slope evaluations.
 
 The documentation in this repository is intended as a practical engineering summary. For formal historical work, consult the primary references listed in [`../references.md`](../references.md).
 
 ## Strengths
 
-- Gives a clear benchmark representative of the Third-order explicit Runge-Kutta method family.
+- Gives a clear benchmark representative of the Explicit third-order Runge-Kutta method family.
 - Useful for comparing error, runtime, stability, and invariant behavior.
 - Easy to inspect because the implementation is intentionally written in readable MATLAB.
 
@@ -43,7 +99,7 @@ The documentation in this repository is intended as a practical engineering summ
 
 ## Works best for
 
-non-stiff problems needing moderate accuracy
+smooth non-stiff problems where third-order accuracy is useful at moderate cost
 
 ## Main performance metrics for this method
 

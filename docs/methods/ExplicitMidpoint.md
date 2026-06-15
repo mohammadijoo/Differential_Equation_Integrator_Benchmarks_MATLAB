@@ -2,7 +2,7 @@
 
 ## Category
 
-Second-order explicit Runge-Kutta method.
+Explicit Runge-Kutta method.
 
 ## Implemented MATLAB file
 
@@ -10,27 +10,89 @@ Second-order explicit Runge-Kutta method.
 src/methods/explicit_midpoint.m
 ```
 
-## Core idea
+## Full mathematical explanation
 
-Second-order, two RHS evaluations, better accuracy than Euler.
+### Problem setting and notation
 
-The method advances an initial-value problem
+For an initial-value problem,
+
+$$
+y'(t)=f(t,y(t)), \qquad y(t_0)=y_0,
+$$
+
+choose grid points
+
+$$
+t_n=t_0+nh, \qquad h=t_{n+1}-t_n,
+$$
+
+and denote the numerical approximation to $y(t_n)$ by $y_n$. For a system of $m$ equations, $y_n\in\mathbb{R}^m$ and $f(t,y)\in\mathbb{R}^m$. The same formulas apply componentwise unless the method is written in special second-order mechanical variables such as position $q$, velocity $v$, and momentum $p$.
+
+### Stage formulas
+
+$$
+k_1=f(t_n,y_n),
+$$
+
+$$
+k_2=f\left(t_n+\frac{h}{2},y_n+\frac{h}{2}k_1\right),
+$$
+
+$$
+y_{n+1}=y_n+h k_2.
+$$
+
+### Geometric meaning
+
+The method first predicts a midpoint state using the initial slope, then uses the vector field at that midpoint as the average slope over the whole interval. It is the ODE analogue of midpoint quadrature applied to
+
+$$
+y(t_{n+1})=y(t_n)+\int_{t_n}^{t_{n+1}}f(t,y(t))\,dt.
+$$
+
+### Order
+
+The method matches the Taylor expansion of the exact solution through the $h^2$ terms:
+
+$$
+y(t_n+h)=y(t_n)+h f_n+\frac{h^2}{2}(f_t+f_yf)_n+O(h^3).
+$$
+
+Therefore
+
+$$
+\text{local error}=O(h^3), \qquad \text{global error}=O(h^2).
+$$
+
+### Stability
+
+For $y'=\lambda y$,
+
+$$
+R(z)=1+z+\frac{z^2}{2}.
+$$
+
+The stability region is larger than Forward Euler's region but still bounded, so stiffness still forces small step sizes.
+
+### Pseudocode
 
 ```text
-y' = f(t, y),    y(t0) = y0
+for each step:
+    compute the starting slope
+    estimate a midpoint state
+    evaluate the slope at that midpoint
+    advance using the midpoint slope
 ```
-
-from `t_n` to `t_(n+1)=t_n+h` using the method-specific update formula implemented in the MATLAB file above.
 
 ## Historical background
 
-Second-order Runge-Kutta formulas were developed in the Runge-Kutta tradition initiated by Runge and Kutta around 1895-1901.
+The explicit midpoint rule is one of the simplest second-order Runge-Kutta methods and is historically tied to quadrature-inspired one-step integration formulas.
 
 The documentation in this repository is intended as a practical engineering summary. For formal historical work, consult the primary references listed in [`../references.md`](../references.md).
 
 ## Strengths
 
-- Gives a clear benchmark representative of the Second-order explicit Runge-Kutta method family.
+- Gives a clear benchmark representative of the Explicit Runge-Kutta method family.
 - Useful for comparing error, runtime, stability, and invariant behavior.
 - Easy to inspect because the implementation is intentionally written in readable MATLAB.
 
@@ -43,7 +105,7 @@ The documentation in this repository is intended as a practical engineering summ
 
 ## Works best for
 
-smooth non-stiff problems
+smooth non-stiff problems where a low-cost second-order method is sufficient
 
 ## Main performance metrics for this method
 

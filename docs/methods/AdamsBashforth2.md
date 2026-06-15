@@ -2,7 +2,7 @@
 
 ## Category
 
-Explicit linear multistep method.
+Explicit two-step Adams-Bashforth method.
 
 ## Implemented MATLAB file
 
@@ -10,27 +10,78 @@ Explicit linear multistep method.
 src/methods/adams_bashforth2.m
 ```
 
-## Core idea
+## Full mathematical explanation
 
-Second-order explicit multistep method; cheap after startup.
+### Problem setting and notation
 
-The method advances an initial-value problem
+For an initial-value problem,
+
+$$
+y'(t)=f(t,y(t)), \qquad y(t_0)=y_0,
+$$
+
+choose grid points
+
+$$
+t_n=t_0+nh, \qquad h=t_{n+1}-t_n,
+$$
+
+and denote the numerical approximation to $y(t_n)$ by $y_n$. For a system of $m$ equations, $y_n\in\mathbb{R}^m$ and $f(t,y)\in\mathbb{R}^m$. The same formulas apply componentwise unless the method is written in special second-order mechanical variables such as position $q$, velocity $v$, and momentum $p$.
+
+### Formula
+
+With $f_j=f(t_j,y_j)$,
+
+$$
+y_{n+1}=y_n+h\left(\frac32 f_n-\frac12 f_{n-1}\right).
+$$
+
+The method uses two time levels, so it requires a starting value $y_1$ from another method.
+
+### Geometric meaning
+
+AB2 extrapolates the next interval's slope from the two most recent slopes. It assumes the vector field changes approximately linearly across the step.
+
+### Polynomial derivation
+
+Let $p_1(t)$ be the line interpolating $(t_{n-1},f_{n-1})$ and $(t_n,f_n)$. Then
+
+$$
+y_{n+1}=y_n+\int_{t_n}^{t_{n+1}}p_1(t)\,dt,
+$$
+
+which gives the coefficients $3/2$ and $-1/2$ for uniform $h$.
+
+### Accuracy and stability
+
+AB2 has
+
+$$
+\text{local error}=O(h^3), \qquad \text{global error}=O(h^2).
+$$
+
+It is explicit and has a bounded stability region. The recurrence also contains a parasitic multistep root, so startup quality and step-size selection matter.
+
+### Pseudocode
 
 ```text
-y' = f(t, y),    y(t0) = y0
+obtain y0 and y1
+store f0 and f1
+for each step:
+    use the AB2 combination of current and previous slopes
+    advance the solution
+    shift slope history forward
 ```
-
-from `t_n` to `t_(n+1)=t_n+h` using the method-specific update formula implemented in the MATLAB file above.
 
 ## Historical background
 
-Adams-Bashforth formulas arose from work by John Couch Adams and Francis Bashforth in the nineteenth century.
+Adams-Bashforth methods are explicit linear multistep formulas based on polynomial extrapolation of the vector field from previous time levels.
 
 The documentation in this repository is intended as a practical engineering summary. For formal historical work, consult the primary references listed in [`../references.md`](../references.md).
 
 ## Strengths
 
-- Gives a clear benchmark representative of the Explicit linear multistep method family.
+- Gives a clear benchmark representative of the Explicit two-step Adams-Bashforth method family.
 - Useful for comparing error, runtime, stability, and invariant behavior.
 - Easy to inspect because the implementation is intentionally written in readable MATLAB.
 
@@ -43,7 +94,7 @@ The documentation in this repository is intended as a practical engineering summ
 
 ## Works best for
 
-non-stiff problems with smooth histories
+smooth non-stiff problems where previous slopes can be reused efficiently
 
 ## Main performance metrics for this method
 

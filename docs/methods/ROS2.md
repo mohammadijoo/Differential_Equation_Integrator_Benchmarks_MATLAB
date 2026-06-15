@@ -2,35 +2,96 @@
 
 ## Category
 
-Two-stage Rosenbrock method.
+Second-order Rosenbrock method.
 
 ## Implemented MATLAB file
 
 ```text
-src/methods/ros2_method.m
+src/methods/ros2.m
 ```
 
-## Core idea
+## Full mathematical explanation
 
-Second-order style linearly implicit method with Jacobian reuse.
+### Problem setting and notation
 
-The method advances an initial-value problem
+For an initial-value problem,
+
+$$
+y'(t)=f(t,y(t)), \qquad y(t_0)=y_0,
+$$
+
+choose grid points
+
+$$
+t_n=t_0+nh, \qquad h=t_{n+1}-t_n,
+$$
+
+and denote the numerical approximation to $y(t_n)$ by $y_n$. For a system of $m$ equations, $y_n\in\mathbb{R}^m$ and $f(t,y)\in\mathbb{R}^m$. The same formulas apply componentwise unless the method is written in special second-order mechanical variables such as position $q$, velocity $v$, and momentum $p$.
+
+### General two-stage Rosenbrock form
+
+With
+
+$$
+J_n=\frac{\partial f}{\partial y}(t_n,y_n),
+$$
+
+a two-stage ROS2 method solves systems involving
+
+$$
+I-\gamma hJ_n.
+$$
+
+A representative structure is
+
+$$
+(I-\gamma hJ_n)k_1=f(t_n,y_n),
+$$
+
+$$
+(I-\gamma hJ_n)k_2=f(t_n+\alpha h,y_n+a h k_1)+c hJ_nk_1,
+$$
+
+$$
+y_{n+1}=y_n+h(m_1k_1+m_2k_2).
+$$
+
+### Geometric meaning
+
+ROS2 adds a second linearly implicit stage to Rosenbrock Euler. This captures curvature information while retaining linear solves instead of nonlinear implicit solves.
+
+### Accuracy
+
+The coefficients are selected to satisfy second-order Rosenbrock order conditions:
+
+$$
+\text{local error}=O(h^3), \qquad \text{global error}=O(h^2).
+$$
+
+### Stiffness handling
+
+The repeated matrix $I-\gamma hJ_n$ damps stiff components and can often be factored once per step and reused across stages.
+
+### Pseudocode
 
 ```text
-y' = f(t, y),    y(t0) = y0
+for each step:
+    compute f and J
+    factor I-gamma*h*J
+    solve first stage
+    form and solve second stage
+    combine stages to obtain y_new
 ```
-
-from `t_n` to `t_(n+1)=t_n+h` using the method-specific update formula implemented in the MATLAB file above.
 
 ## Historical background
 
-Rosenbrock methods form a family of linearly implicit methods for stiff ODEs.
+ROS2 methods are second-order members of the Rosenbrock family, using multiple linearly implicit stages to improve accuracy while retaining stiff stability.
 
 The documentation in this repository is intended as a practical engineering summary. For formal historical work, consult the primary references listed in [`../references.md`](../references.md).
 
 ## Strengths
 
-- Gives a clear benchmark representative of the Two-stage Rosenbrock method family.
+- Gives a clear benchmark representative of the Second-order Rosenbrock method family.
 - Useful for comparing error, runtime, stability, and invariant behavior.
 - Easy to inspect because the implementation is intentionally written in readable MATLAB.
 
@@ -43,7 +104,7 @@ The documentation in this repository is intended as a practical engineering summ
 
 ## Works best for
 
-moderately stiff chemical, biological, and control systems
+moderately stiff nonlinear systems where second-order linearly implicit integration is useful
 
 ## Main performance metrics for this method
 

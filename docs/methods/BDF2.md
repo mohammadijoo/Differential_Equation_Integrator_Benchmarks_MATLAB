@@ -2,35 +2,86 @@
 
 ## Category
 
-Backward differentiation formula.
+Implicit two-step backward differentiation formula.
 
 ## Implemented MATLAB file
 
 ```text
-src/methods/bdf2_method.m
+src/methods/bdf2.m
 ```
 
-## Core idea
+## Full mathematical explanation
 
-Second-order implicit multistep method; strong stiff-problem baseline.
+### Problem setting and notation
 
-The method advances an initial-value problem
+For an initial-value problem,
+
+$$
+y'(t)=f(t,y(t)), \qquad y(t_0)=y_0,
+$$
+
+choose grid points
+
+$$
+t_n=t_0+nh, \qquad h=t_{n+1}-t_n,
+$$
+
+and denote the numerical approximation to $y(t_n)$ by $y_n$. For a system of $m$ equations, $y_n\in\mathbb{R}^m$ and $f(t,y)\in\mathbb{R}^m$. The same formulas apply componentwise unless the method is written in special second-order mechanical variables such as position $q$, velocity $v$, and momentum $p$.
+
+### Formula
+
+BDF2 approximates the derivative at the newest time level:
+
+$$
+\frac{3y_{n+1}-4y_n+y_{n-1}}{2h}=f(t_{n+1},y_{n+1}).
+$$
+
+It is implicit because the right-hand side depends on $y_{n+1}$.
+
+### Geometric meaning
+
+BDF2 fits a quadratic through recent solution values and differentiates that polynomial at the future point. This endpoint-focused derivative approximation is well suited to stiff decay.
+
+### Accuracy
+
+The derivative approximation is second-order accurate, so
+
+$$
+\text{local error}=O(h^3), \qquad \text{global error}=O(h^2).
+$$
+
+### Stability
+
+For $y'=\lambda y$ and $z=h\lambda$, substituting $y_n=\xi^n$ gives
+
+$$
+(3-2z)\xi^2-4\xi+1=0.
+$$
+
+BDF2 is A-stable. It is therefore much more appropriate for stiff systems than explicit multistep methods.
+
+### Startup
+
+BDF2 needs $y_0$ and $y_1$. The first step is usually produced by Backward Euler or another stable one-step method.
+
+### Pseudocode
 
 ```text
-y' = f(t, y),    y(t0) = y0
+obtain y0 and y1
+for each later step:
+    solve (3*Y - 4*y_n + y_{n-1})/(2*h) = f(t_{n+1},Y)
+    shift the solution history forward
 ```
-
-from `t_n` to `t_(n+1)=t_n+h` using the method-specific update formula implemented in the MATLAB file above.
 
 ## Historical background
 
-BDF methods were used for stiff equations by Curtiss and Hirschfelder in 1952 and later developed extensively by Gear.
+Backward differentiation formulas are classical implicit linear multistep formulas designed for stiff differential equations by differentiating interpolation polynomials at the newest time level.
 
 The documentation in this repository is intended as a practical engineering summary. For formal historical work, consult the primary references listed in [`../references.md`](../references.md).
 
 ## Strengths
 
-- Gives a clear benchmark representative of the Backward differentiation formula family.
+- Gives a clear benchmark representative of the Implicit two-step backward differentiation formula family.
 - Useful for comparing error, runtime, stability, and invariant behavior.
 - Easy to inspect because the implementation is intentionally written in readable MATLAB.
 
@@ -43,7 +94,7 @@ The documentation in this repository is intended as a practical engineering summ
 
 ## Works best for
 
-stiff ODEs and DAEs
+stiff dissipative systems where second-order accuracy and strong stability are important
 
 ## Main performance metrics for this method
 

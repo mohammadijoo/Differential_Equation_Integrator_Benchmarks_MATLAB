@@ -1,36 +1,99 @@
-# Ralston Method
+# Ralston
 
 ## Category
 
-Optimized second-order RK method.
+Explicit second-order Runge-Kutta method.
 
 ## Implemented MATLAB file
 
 ```text
-src/methods/ralston_method.m
+src/methods/ralston.m
 ```
 
-## Core idea
+## Full mathematical explanation
 
-Second-order RK2 method with coefficients chosen to reduce truncation error.
+### Problem setting and notation
 
-The method advances an initial-value problem
+For an initial-value problem,
+
+$$
+y'(t)=f(t,y(t)), \qquad y(t_0)=y_0,
+$$
+
+choose grid points
+
+$$
+t_n=t_0+nh, \qquad h=t_{n+1}-t_n,
+$$
+
+and denote the numerical approximation to $y(t_n)$ by $y_n$. For a system of $m$ equations, $y_n\in\mathbb{R}^m$ and $f(t,y)\in\mathbb{R}^m$. The same formulas apply componentwise unless the method is written in special second-order mechanical variables such as position $q$, velocity $v$, and momentum $p$.
+
+### Stage formulas
+
+$$
+k_1=f(t_n,y_n),
+$$
+
+$$
+k_2=f\left(t_n+\frac{2h}{3},y_n+\frac{2h}{3}k_1\right),
+$$
+
+$$
+y_{n+1}=y_n+h\left(\frac14 k_1+\frac34 k_2\right).
+$$
+
+### Geometric meaning
+
+Ralston's method samples the vector field at the initial point and at a point two-thirds across the interval. The later slope receives larger weight because it better represents the average behavior over the interval.
+
+### Order conditions
+
+A two-stage second-order Runge-Kutta method must satisfy
+
+$$
+b_1+b_2=1, \qquad b_2c_2=\frac12.
+$$
+
+For Ralston's coefficients,
+
+$$
+\frac14+\frac34=1, \qquad \frac34\cdot\frac23=\frac12.
+$$
+
+Therefore it is second-order accurate:
+
+$$
+\text{global error}=O(h^2).
+$$
+
+### Stability
+
+For $y'=\lambda y$,
+
+$$
+R(z)=1+z+\frac{z^2}{2}.
+$$
+
+The linear scalar stability function is the same as other explicit second-order two-stage RK methods.
+
+### Pseudocode
 
 ```text
-y' = f(t, y),    y(t0) = y0
+for each step:
+    compute k1
+    compute k2 at a two-thirds trial point
+    combine k1 and k2 using weights 1/4 and 3/4
 ```
-
-from `t_n` to `t_(n+1)=t_n+h` using the method-specific update formula implemented in the MATLAB file above.
 
 ## Historical background
 
-Associated with Anthony Ralston, who studied low-error Runge-Kutta coefficients in the twentieth century.
+Ralston's method is a second-order Runge-Kutta formula selected to reduce the local error constant within the two-stage explicit Runge-Kutta family.
 
 The documentation in this repository is intended as a practical engineering summary. For formal historical work, consult the primary references listed in [`../references.md`](../references.md).
 
 ## Strengths
 
-- Gives a clear benchmark representative of the Optimized second-order RK method family.
+- Gives a clear benchmark representative of the Explicit second-order Runge-Kutta method family.
 - Useful for comparing error, runtime, stability, and invariant behavior.
 - Easy to inspect because the implementation is intentionally written in readable MATLAB.
 
@@ -43,7 +106,7 @@ The documentation in this repository is intended as a practical engineering summ
 
 ## Works best for
 
-smooth non-stiff problems
+smooth non-stiff problems where a two-stage RK method with a small error constant is desired
 
 ## Main performance metrics for this method
 

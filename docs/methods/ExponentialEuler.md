@@ -2,7 +2,7 @@
 
 ## Category
 
-Exponential / local linearization method.
+Exponential integrator.
 
 ## Implemented MATLAB file
 
@@ -10,27 +10,86 @@ Exponential / local linearization method.
 src/methods/exponential_euler.m
 ```
 
-## Core idea
+## Full mathematical explanation
 
-Uses matrix exponential or phi-functions to integrate local linear dynamics.
+### Problem setting and notation
 
-The method advances an initial-value problem
+For an initial-value problem,
+
+$$
+y'(t)=f(t,y(t)), \qquad y(t_0)=y_0,
+$$
+
+choose grid points
+
+$$
+t_n=t_0+nh, \qquad h=t_{n+1}-t_n,
+$$
+
+and denote the numerical approximation to $y(t_n)$ by $y_n$. For a system of $m$ equations, $y_n\in\mathbb{R}^m$ and $f(t,y)\in\mathbb{R}^m$. The same formulas apply componentwise unless the method is written in special second-order mechanical variables such as position $q$, velocity $v$, and momentum $p$.
+
+### Semilinear form
+
+Exponential Euler is designed for
+
+$$
+y'=Ay+g(t,y),
+$$
+
+where $A$ is a known linear operator treated exactly.
+
+### Variation-of-constants formula
+
+The exact solution satisfies
+
+$$
+y(t_{n+1})=e^{hA}y(t_n)+\int_0^h e^{(h-s)A}g(t_n+s,y(t_n+s))\,ds.
+$$
+
+Freezing the nonlinear term at $(t_n,y_n)$ gives
+
+$$
+y_{n+1}=e^{hA}y_n+h\varphi_1(hA)g(t_n,y_n),
+$$
+
+where
+
+$$
+\varphi_1(z)=\frac{e^z-1}{z}.
+$$
+
+### Geometric meaning
+
+The method follows the linear dynamics exactly and approximates only the nonlinear remainder. If the stiffness or fast oscillation is contained in $A$, this can greatly reduce explicit stability restrictions.
+
+### Accuracy
+
+For the full semilinear problem,
+
+$$
+\text{local error}=O(h^2), \qquad \text{global error}=O(h).
+$$
+
+For the pure linear equation $y'=Ay$, the method is exact.
+
+### Pseudocode
 
 ```text
-y' = f(t, y),    y(t0) = y0
+split f into A*y plus g(t,y)
+for each step:
+    propagate y by e^(hA)
+    add h*phi_1(hA)*g(t,y)
 ```
-
-from `t_n` to `t_(n+1)=t_n+h` using the method-specific update formula implemented in the MATLAB file above.
 
 ## Historical background
 
-Exponential integrators grew from variation-of-constants formulas and modern semilinear PDE integration.
+Exponential integrators developed from the idea of treating the dominant linear part of an ODE exactly using matrix exponentials and related phi-functions.
 
 The documentation in this repository is intended as a practical engineering summary. For formal historical work, consult the primary references listed in [`../references.md`](../references.md).
 
 ## Strengths
 
-- Gives a clear benchmark representative of the Exponential / local linearization method family.
+- Gives a clear benchmark representative of the Exponential integrator family.
 - Useful for comparing error, runtime, stability, and invariant behavior.
 - Easy to inspect because the implementation is intentionally written in readable MATLAB.
 
@@ -43,7 +102,7 @@ The documentation in this repository is intended as a practical engineering summ
 
 ## Works best for
 
-linear or semilinear stiff systems
+semilinear systems where the stiff or oscillatory linear part is known explicitly
 
 ## Main performance metrics for this method
 

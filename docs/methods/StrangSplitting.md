@@ -2,7 +2,7 @@
 
 ## Category
 
-Second-order operator splitting.
+Second-order operator splitting method.
 
 ## Implemented MATLAB file
 
@@ -10,27 +10,80 @@ Second-order operator splitting.
 src/methods/strang_splitting.m
 ```
 
-## Core idea
+## Full mathematical explanation
 
-Second-order symmetric A/2-B-A/2 composition.
+### Problem setting and notation
 
-The method advances an initial-value problem
+For an initial-value problem,
+
+$$
+y'(t)=f(t,y(t)), \qquad y(t_0)=y_0,
+$$
+
+choose grid points
+
+$$
+t_n=t_0+nh, \qquad h=t_{n+1}-t_n,
+$$
+
+and denote the numerical approximation to $y(t_n)$ by $y_n$. For a system of $m$ equations, $y_n\in\mathbb{R}^m$ and $f(t,y)\in\mathbb{R}^m$. The same formulas apply componentwise unless the method is written in special second-order mechanical variables such as position $q$, velocity $v$, and momentum $p$.
+
+### Split form
+
+Suppose
+
+$$
+y'=A(y)+B(y),
+$$
+
+with subflows $\Phi_A^h$ and $\Phi_B^h$.
+
+### Formula
+
+Strang splitting uses
+
+$$
+y_{n+1}=\Phi_A^{h/2}\circ\Phi_B^h\circ\Phi_A^{h/2}(y_n).
+$$
+
+### Geometric meaning
+
+The method applies half of one subsystem, all of the other subsystem, then the remaining half of the first subsystem. The symmetry cancels the leading first-order splitting error.
+
+### Accuracy
+
+Under smoothness assumptions,
+
+$$
+\text{local error}=O(h^3), \qquad \text{global error}=O(h^2).
+$$
+
+For linear operators, it approximates
+
+$$
+e^{h(A+B)} \approx e^{hA/2}e^{hB}e^{hA/2}.
+$$
+
+The leading errors depend on commutators such as $[A,[A,B]]$ and $[B,[A,B]]$.
+
+### Pseudocode
 
 ```text
-y' = f(t, y),    y(t0) = y0
+for each step:
+    apply subsystem A for half a step
+    apply subsystem B for one full step
+    apply subsystem A for half a step
 ```
-
-from `t_n` to `t_(n+1)=t_n+h` using the method-specific update formula implemented in the MATLAB file above.
 
 ## Historical background
 
-Gilbert Strang analyzed symmetric splitting formulas in the context of numerical analysis.
+Strang splitting is a classical symmetric operator splitting method introduced by Gilbert Strang and widely used for decomposed evolution equations.
 
 The documentation in this repository is intended as a practical engineering summary. For formal historical work, consult the primary references listed in [`../references.md`](../references.md).
 
 ## Strengths
 
-- Gives a clear benchmark representative of the Second-order operator splitting family.
+- Gives a clear benchmark representative of the Second-order operator splitting method family.
 - Useful for comparing error, runtime, stability, and invariant behavior.
 - Easy to inspect because the implementation is intentionally written in readable MATLAB.
 
@@ -43,7 +96,7 @@ The documentation in this repository is intended as a practical engineering summ
 
 ## Works best for
 
-separable Hamiltonians and operator-split PDE/ODE systems
+systems that naturally split into exactly or cheaply solvable subproblems
 
 ## Main performance metrics for this method
 

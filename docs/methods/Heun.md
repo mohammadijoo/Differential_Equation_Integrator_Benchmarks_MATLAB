@@ -1,36 +1,96 @@
-# Heun Method
+# Heun
 
 ## Category
 
-Improved Euler / explicit trapezoidal RK2.
+Explicit Runge-Kutta / improved Euler method.
 
 ## Implemented MATLAB file
 
 ```text
-src/methods/heun_method.m
+src/methods/heun.m
 ```
 
-## Core idea
+## Full mathematical explanation
 
-Second-order predictor-corrector style explicit RK method.
+### Problem setting and notation
 
-The method advances an initial-value problem
+For an initial-value problem,
+
+$$
+y'(t)=f(t,y(t)), \qquad y(t_0)=y_0,
+$$
+
+choose grid points
+
+$$
+t_n=t_0+nh, \qquad h=t_{n+1}-t_n,
+$$
+
+and denote the numerical approximation to $y(t_n)$ by $y_n$. For a system of $m$ equations, $y_n\in\mathbb{R}^m$ and $f(t,y)\in\mathbb{R}^m$. The same formulas apply componentwise unless the method is written in special second-order mechanical variables such as position $q$, velocity $v$, and momentum $p$.
+
+### Predictor-corrector formula
+
+$$
+k_1=f(t_n,y_n),
+$$
+
+$$
+y_{n+1}^{P}=y_n+h k_1,
+$$
+
+$$
+k_2=f(t_{n+1},y_{n+1}^{P}),
+$$
+
+$$
+y_{n+1}=y_n+\frac{h}{2}(k_1+k_2).
+$$
+
+### Geometric meaning
+
+Heun's method estimates the area under the vector field by averaging a left endpoint slope and an explicitly predicted right endpoint slope. It is an explicit approximation to the trapezoidal rule.
+
+### Accuracy
+
+The average of the two slopes captures the leading curvature correction, giving
+
+$$
+\text{local error}=O(h^3), \qquad \text{global error}=O(h^2).
+$$
+
+### Stability
+
+For the scalar test equation,
+
+$$
+R(z)=1+z+\frac{z^2}{2}.
+$$
+
+Thus Heun improves accuracy over Forward Euler but remains conditionally stable.
+
+### Relation to implicit trapezoidal rule
+
+The implicit trapezoidal rule uses $f(t_{n+1},y_{n+1})$. Heun replaces the unknown future value by $y_{n+1}^{P}$, avoiding a nonlinear solve at the cost of a smaller stability region.
+
+### Pseudocode
 
 ```text
-y' = f(t, y),    y(t0) = y0
+for each step:
+    compute current slope
+    predict endpoint by Forward Euler
+    compute slope at predicted endpoint
+    average the two slopes
 ```
-
-from `t_n` to `t_(n+1)=t_n+h` using the method-specific update formula implemented in the MATLAB file above.
 
 ## Historical background
 
-Named after Karl Heun, who developed related Runge-Kutta formulas in the early twentieth century.
+Heun's method is commonly known as the improved Euler method or explicit trapezoidal Runge-Kutta method and belongs to the early family of second-order predictor-corrector ideas.
 
 The documentation in this repository is intended as a practical engineering summary. For formal historical work, consult the primary references listed in [`../references.md`](../references.md).
 
 ## Strengths
 
-- Gives a clear benchmark representative of the Improved Euler / explicit trapezoidal RK2 family.
+- Gives a clear benchmark representative of the Explicit Runge-Kutta / improved Euler method family.
 - Useful for comparing error, runtime, stability, and invariant behavior.
 - Easy to inspect because the implementation is intentionally written in readable MATLAB.
 
@@ -43,7 +103,7 @@ The documentation in this repository is intended as a practical engineering summ
 
 ## Works best for
 
-non-stiff ODEs where slope averaging is useful
+smooth non-stiff problems where endpoint slope averaging gives good accuracy
 
 ## Main performance metrics for this method
 

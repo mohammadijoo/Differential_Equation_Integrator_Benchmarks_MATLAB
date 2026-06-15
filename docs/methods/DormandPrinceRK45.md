@@ -2,35 +2,100 @@
 
 ## Category
 
-Adaptive embedded RK method.
+Embedded adaptive Runge-Kutta method.
 
 ## Implemented MATLAB file
 
 ```text
-src/methods/dopri45_method.m
+src/methods/dormand_prince_rk45.m
 ```
 
-## Core idea
+## Full mathematical explanation
 
-Adaptive, widely used style behind many ode45-type solvers.
+### Problem setting and notation
 
-The method advances an initial-value problem
+For an initial-value problem,
+
+$$
+y'(t)=f(t,y(t)), \qquad y(t_0)=y_0,
+$$
+
+choose grid points
+
+$$
+t_n=t_0+nh, \qquad h=t_{n+1}-t_n,
+$$
+
+and denote the numerical approximation to $y(t_n)$ by $y_n$. For a system of $m$ equations, $y_n\in\mathbb{R}^m$ and $f(t,y)\in\mathbb{R}^m$. The same formulas apply componentwise unless the method is written in special second-order mechanical variables such as position $q$, velocity $v$, and momentum $p$.
+
+### Embedded 5(4) pair
+
+Dormand-Prince RK45 forms
+
+$$
+y_{n+1}^{[5]}=y_n+h\sum_i b_i k_i,
+$$
+
+and
+
+$$
+y_{n+1}^{[4]}=y_n+h\sum_i \hat b_i k_i.
+$$
+
+The difference
+
+$$
+e_{n+1}=y_{n+1}^{[5]}-y_{n+1}^{[4]}
+$$
+
+estimates local error.
+
+### Stage structure
+
+Each explicit stage has the form
+
+$$
+k_i=f\left(t_n+c_i h,y_n+h\sum_{j<i}a_{ij}k_j\right).
+$$
+
+### FSAL idea
+
+Many Dormand-Prince implementations use the FSAL property, meaning the final derivative of one accepted step can be reused as the first derivative of the next step. This reduces average function evaluations.
+
+### Adaptive control
+
+A common scaled error is
+
+$$
+\mathrm{err}=\left\|\frac{e_{n+1}}{\mathrm{atol}+\mathrm{rtol}\max(|y_n|,|y_{n+1}|)}\right\|.
+$$
+
+The step is accepted if $\mathrm{err}\le 1$.
+
+### Stability
+
+Dormand-Prince is excellent for non-stiff problems, but its explicit nature means that stiff equations can produce many rejected steps or very small accepted steps.
+
+### Pseudocode
 
 ```text
-y' = f(t, y),    y(t0) = y0
+for each attempted step:
+    compute explicit stages
+    form fifth- and fourth-order solutions
+    estimate scaled error
+    accept or reject
+    adapt h
 ```
-
-from `t_n` to `t_(n+1)=t_n+h` using the method-specific update formula implemented in the MATLAB file above.
 
 ## Historical background
 
-Dormand and Prince published their family of embedded Runge-Kutta formulas in 1980.
+Dormand-Prince methods are embedded Runge-Kutta pairs designed to optimize the higher-order solution and are the basis of many modern non-stiff adaptive solvers.
 
 The documentation in this repository is intended as a practical engineering summary. For formal historical work, consult the primary references listed in [`../references.md`](../references.md).
 
 ## Strengths
 
-- Gives a clear benchmark representative of the Adaptive embedded RK method family.
+- Gives a clear benchmark representative of the Embedded adaptive Runge-Kutta method family.
 - Useful for comparing error, runtime, stability, and invariant behavior.
 - Easy to inspect because the implementation is intentionally written in readable MATLAB.
 
@@ -43,7 +108,7 @@ The documentation in this repository is intended as a practical engineering summ
 
 ## Works best for
 
-smooth non-stiff ODEs with automatic tolerance control
+smooth non-stiff problems requiring reliable adaptive error control
 
 ## Main performance metrics for this method
 
