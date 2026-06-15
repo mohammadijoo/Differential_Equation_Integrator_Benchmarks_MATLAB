@@ -191,6 +191,22 @@ The code is written in plain MATLAB style and avoids Simulink dependencies. It s
 
 ---
 
+<a id="simulation-video"></a>
+
+## Simulation video
+
+Below is a link to the simulation video on YouTube.
+
+<a href="https://www.youtube.com/watch?v=lpxKCCUKyiY" target="_blank">
+  <img
+    src="https://i.ytimg.com/vi/lpxKCCUKyiY/maxresdefault.jpg"
+    alt="Prolog Double Pendulum Chaos Simulator"
+    style="max-width: 100%; border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.18); margin-top: 0.5rem;"
+  />
+</a>
+
+---
+
 ## License
 
 This project is released under the MIT License. See [`LICENSE`](LICENSE).
