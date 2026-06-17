@@ -2,22 +2,22 @@
 
 ## Meaning
 
-`nfev` counts right-hand-side function evaluations.
+`nfev` counts right-hand-side evaluations of the differential equation model.
 
-## Mathematical / implementation meaning
+## Mathematical context
 
 For an ODE
 
-\[
+$$
 y'=f(t,y),
-\]
+$$
 
-`nfev` counts calls to \(f(t,y)\). In Runge-Kutta methods this is closely related to the number of stages times the number of accepted and rejected steps.
+`nfev` counts calls to $f(t,y)$.
 
 ## Interpretation
 
-A lower `nfev` often means less RHS work, especially when RHS evaluation is expensive.
+This is a direct work metric for explicit methods and remains important for implicit, adaptive, and multistage methods.
 
 ## Limitations
 
-`nfev` does not capture Jacobian assembly, matrix factorization, Newton iterations, linear solves, event handling, or interpolation overhead. For stiff and implicit methods, combine it with `n_jacobian`, `n_newton`, and `n_linear_solve`.
+One function evaluation may have very different cost depending on the benchmark. For stiff implicit methods, Jacobian evaluations and linear solves may dominate the cost.

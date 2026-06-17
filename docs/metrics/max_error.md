@@ -2,26 +2,26 @@
 
 ## Meaning
 
-`max_error` measures the worst trajectory error over the sampled comparison interval.
+`max_error` measures the largest trajectory error over all reported output times.
 
 ## Mathematical definition
 
-For sampled times \(t_i\), numerical states \(y_i\), and reference states \(y_{ref}(t_i)\), define
+For output times $t_i$, numerical states $y_i$, and reference states $y_{\mathrm{ref}}(t_i)$, define the pointwise error as
 
-\[
-e_i=\|y_i-y_{ref}(t_i)\|_2 .
-\]
+$$
+e_i=\left\lVert y_i-y_{\mathrm{ref}}(t_i)\right\rVert_2.
+$$
 
 Then
 
-\[
-\texttt{max\_error}=\max_i e_i .
-\]
+$$
+\texttt{max\_error}=\max_i e_i.
+$$
 
 ## Interpretation
 
-A smaller value means the method remained close to the reference solution over the whole sampled trajectory. This metric is more conservative than `final_error`.
+This metric detects the worst error over the entire comparison window, not only at the endpoint.
 
 ## Limitations
 
-The value depends on the output sampling grid. If the solver has large internal excursions between output points, `max_error` may not detect them unless dense output or finer sampling is used.
+It can be sensitive to a single local spike, interpolation mismatch, or transient layer. Use it with `rmse_error` and plots of error versus time.

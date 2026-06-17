@@ -2,26 +2,26 @@
 
 ## Meaning
 
-`rmse_error` measures the root-mean-square trajectory error over the comparison interval.
+`rmse_error` is the root-mean-square trajectory error over all reported output times.
 
 ## Mathematical definition
 
-For errors
+For pointwise errors
 
-\[
-e_i=\|y_i-y_{ref}(t_i)\|_2,
-\]
+$$
+e_i=\left\lVert y_i-y_{\mathrm{ref}}(t_i)\right\rVert_2,
+$$
 
-the RMSE is
+the root-mean-square error is
 
-\[
-\texttt{rmse\_error}=\sqrt{\frac{1}{N+1}\sum_{i=0}^{N} e_i^2} .
-\]
+$$
+\texttt{rmse\_error}=\sqrt{\frac{1}{N}\sum_{i=1}^{N}e_i^2}.
+$$
 
 ## Interpretation
 
-A smaller value means better average trajectory accuracy. This metric is useful when one wants an aggregate accuracy measure rather than only final-time or worst-case behavior.
+This metric summarizes overall trajectory accuracy and is less dominated by one isolated error spike than `max_error`.
 
 ## Limitations
 
-RMSE can hide short but severe local failures because the error is averaged over all sampled times. Use it together with `max_error`.
+RMSE can hide short but important events, positivity violations, constraint drift, or qualitative failures.

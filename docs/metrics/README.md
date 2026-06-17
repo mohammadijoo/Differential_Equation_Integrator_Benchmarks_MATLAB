@@ -1,6 +1,6 @@
 # Metrics documentation
 
-This folder documents the numerical and solver-mechanics metrics reported or emphasized by the benchmark suite.
+This folder documents the metrics used or planned in the MATLAB benchmark framework.
 
 | Metric | Documentation |
 |---|---|
@@ -19,4 +19,4 @@ This folder documents the numerical and solver-mechanics metrics reported or emp
 | `constraint_error` | [`constraint_error.md`](constraint_error.md) |
 | `status` | [`status.md`](status.md) |
 
-Use these documents together with the method and benchmark documentation. Accuracy metrics, work metrics, invariant metrics, and execution-status diagnostics answer different questions and should not be collapsed into a single ranking.
+For GitHub Markdown, inline math is written with dollar delimiters and display math is written with double-dollar blocks. These files avoid bracket-style LaTeX delimiters because those are the source of the broken formulas reported in GitHub rendering.

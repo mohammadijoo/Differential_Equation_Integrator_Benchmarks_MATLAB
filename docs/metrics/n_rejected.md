@@ -2,16 +2,20 @@
 
 ## Meaning
 
-`n_rejected` counts rejected adaptive steps.
+`n_rejected` counts adaptive trial steps rejected by a step-size controller.
 
-## Implementation meaning
+## Typical condition
 
-A rejected step occurs when an adaptive method estimates that a proposed step violates the requested tolerance or stability/validity criteria, then discards that step and retries with a smaller or modified step.
+A trial step is rejected when the estimated local error violates the tolerance condition, for example
+
+$$
+\mathrm{err}_{\mathrm{loc}}>1.
+$$
 
 ## Interpretation
 
-A high value may indicate stiffness, discontinuities, poor error estimates, overly aggressive step-size growth, or tolerance settings that are difficult for the method.
+Large `n_rejected` often indicates stiffness, discontinuities, poor step-size prediction, tight tolerances, or instability.
 
 ## Limitations
 
-Fixed-step methods usually have zero rejected steps. Some solvers may not expose this count, so the value may be unavailable or set to zero depending on the implementation.
+Fixed-step methods usually report zero or `NaN`. Rejection counts are most meaningful for adaptive solvers with comparable error controllers.

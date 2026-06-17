@@ -2,23 +2,33 @@
 
 ## Meaning
 
-`status` records the execution outcome of a method/benchmark run.
+`status` records the outcome of a method/benchmark run.
 
 ## Typical values
 
-Common status values include:
+Common values include:
 
-- `success`: the method completed the run.
-- `not_applicable`: the method is not meaningful for the benchmark.
-- `method_planned_not_implemented`: the method is documented or registered but not runnable yet.
-- `benchmark_planned_not_runnable`: the benchmark is documented or registered but not runnable yet.
-- `failure`: the solver call raised an error.
-- `blow_up`: the numerical solution became invalid, unbounded, or unusable.
+- `success`
+- `failure`
+- `not_applicable`
+- `method_planned_not_implemented`
+- `benchmark_planned_not_runnable`
+- `blow_up`
+- `non_converged`
 
 ## Interpretation
 
-This field is essential for automated benchmark tables because a missing numeric metric should not be confused with a valid zero or small value.
+`status` prevents failed, skipped, or non-applicable runs from being interpreted as valid numerical results.
+
+## Recommended use
+
+When comparing methods, filter or group by status before computing summary plots:
+
+```matlab
+valid = strcmp({records.status}, 'success');
+records_success = records(valid);
+```
 
 ## Limitations
 
-Status values are implementation conventions. A `success` status means the run completed, not that the numerical result is accurate or physically meaningful.
+A successful run is not necessarily accurate or physically meaningful. Always inspect numerical metrics and qualitative plots.

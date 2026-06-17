@@ -2,22 +2,26 @@
 
 ## Meaning
 
-`n_linear_solve` counts linear solves or backsolves used inside implicit, linearly implicit, Rosenbrock, Newton, or preconditioned methods.
+`n_linear_solve` counts linear systems solved inside implicit, linearly implicit, Rosenbrock, Newton-Krylov, DAE, or PDE-derived methods.
 
 ## Mathematical context
 
-Typical linear solves have the form
+A typical implicit method repeatedly solves systems of the form
 
-\[
-A x=b .
-\]
+$$
+A\Delta z=b.
+$$
 
-In implicit ODE methods, \(A\) may be a Jacobian-derived matrix such as \(I-h\gamma J\).
+For stiff ODEs, a common matrix form is
+
+$$
+A=I-h\gamma J.
+$$
 
 ## Interpretation
 
-A lower count can indicate less linear algebra work. For stiff systems, this count is often more informative than raw RHS evaluations.
+This metric is important because linear solves often dominate the runtime of stiff and large-scale problems.
 
 ## Limitations
 
-The cost of a linear solve depends heavily on matrix size, sparsity, conditioning, factorization reuse, preconditioning, and direct versus iterative solution strategy.
+Dense LU, sparse LU, Krylov solves, preconditioned solves, and matrix-free solves have very different costs. Count this metric together with factorization and preconditioning details when available.

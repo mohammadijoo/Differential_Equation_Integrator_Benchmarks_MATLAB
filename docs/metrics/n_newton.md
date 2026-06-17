@@ -2,28 +2,24 @@
 
 ## Meaning
 
-`n_newton` counts Newton or nonlinear iterations used by implicit methods.
+`n_newton` counts Newton or Newton-like nonlinear iterations used inside implicit methods.
 
 ## Mathematical context
 
-Implicit methods often require solving nonlinear equations such as
+For an implicit step residual $G(z)=0$, Newton iteration has the form
 
-\[
-G(z)=0.
-\]
+$$
+J_G(z_k)\Delta z_k=-G(z_k),
+$$
 
-Newton's method updates an iterate by solving
-
-\[
-J_G(z_k)\Delta z_k=-G(z_k), \qquad z_{k+1}=z_k+\Delta z_k .
-\]
-
-`n_newton` counts these nonlinear iterations.
+$$
+z_{k+1}=z_k+\Delta z_k.
+$$
 
 ## Interpretation
 
-A lower count usually indicates easier nonlinear solves or better initial guesses. A high count may indicate stiffness, large step sizes, poor Jacobians, or difficult nonlinear dynamics.
+More Newton iterations usually mean a harder nonlinear solve, a poor initial guess, a large time step, stiffness, or insufficient Jacobian reuse strategy.
 
 ## Limitations
 
-Newton iterations are not all equally expensive. Each iteration may require Jacobian evaluation, factorization, or linear solves.
+Different methods use full Newton, modified Newton, inexact Newton, chord iterations, or fixed-point iterations. Compare only when the nonlinear-solve strategy is documented.

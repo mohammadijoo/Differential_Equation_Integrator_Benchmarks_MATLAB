@@ -2,22 +2,20 @@
 
 ## Meaning
 
-`positivity_violation` measures whether a numerical solution violates a nonnegative-state constraint.
+`positivity_violation` measures how strongly a numerical solution violates nonnegative state constraints.
 
 ## Mathematical definition
 
-For states whose components should satisfy \(y_j(t)\ge 0\), one possible diagnostic is
+For a state vector whose components should satisfy $y_j(t)\ge 0$, a common diagnostic is
 
-\[
-\texttt{positivity\_violation}=\max_{i,j}\max(0,-y_{i,j}) .
-\]
-
-A value of zero means no sampled component became negative.
+$$
+\texttt{positivity\_violation}=\max_{i,j}\max\left(0,-y_{i,j}\right).
+$$
 
 ## Interpretation
 
-This metric is important for chemical concentrations, population models, probabilities, compartmental epidemic models, and other physically nonnegative states.
+A value of zero means no negative state was observed on the output grid. This is important for concentrations, populations, probabilities, densities, and chemical kinetics.
 
 ## Limitations
 
-A method can be accurate in a norm but still produce small negative values. Conversely, enforcing positivity may change accuracy or conservation behavior. This metric should be interpreted with error and invariant metrics.
+A method may violate positivity between output times even if output values look nonnegative. For adaptive methods, positivity should ideally be checked at accepted internal steps as well.

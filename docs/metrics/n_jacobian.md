@@ -2,22 +2,28 @@
 
 ## Meaning
 
-`n_jacobian` counts Jacobian evaluations.
+`n_jacobian` counts Jacobian evaluations used by implicit, linearly implicit, Newton, Rosenbrock, DAE, or stiff solver components.
 
-## Mathematical definition
+## Mathematical context
 
-For an ODE or residual system, the Jacobian is typically
+For an ODE right-hand side $f(t,y)$, the Jacobian is
 
-\[
+$$
 J(t,y)=\frac{\partial f}{\partial y}(t,y).
-\]
+$$
 
-Implicit, Rosenbrock, linearly implicit, DAE, and stiff solvers may evaluate or approximate this matrix.
+For a residual equation $F(t,y,y')=0$, a solver may need derivatives such as
+
+$$
+\frac{\partial F}{\partial y}
+\qquad\text{and}\qquad
+\frac{\partial F}{\partial y'}.
+$$
 
 ## Interpretation
 
-A lower count can indicate that the method reuses Jacobians efficiently. A high count may indicate nonlinear difficulty, stiffness, or conservative solver settings.
+Frequent Jacobian recomputation can increase cost but may improve nonlinear convergence and robustness.
 
 ## Limitations
 
-One Jacobian evaluation can be cheap or expensive depending on whether it is analytic, finite-difference, sparse, dense, automatic-differentiated, or problem-specific. Count alone is not enough; cost per Jacobian matters.
+Analytic, finite-difference, sparse, dense, and reused Jacobians have very different costs. Interpret this metric together with `cpu_time`, `n_newton`, and `n_linear_solve`.
