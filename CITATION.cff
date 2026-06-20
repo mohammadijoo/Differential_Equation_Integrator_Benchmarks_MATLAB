@@ -5,7 +5,7 @@ type: software
 authors:
   - family-names: Mohammadijoo
     given-names: Abolfazl
-repository-code: https://github.com/mohammadijoo/DifferentialEquationIntegratorBenchmarks_MATLAB
+repository-code: https://github.com/mohammadijoo/Differential_Equation_Integrator_Benchmarks_MATLAB
 license: MIT
 date-released: 2026-06-14
 version: 0.1.0
